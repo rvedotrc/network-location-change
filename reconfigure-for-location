@@ -1,0 +1,64 @@
+#!/bin/bash
+
+svn_proxy() {
+	pushd ~/.subversion
+	if [ $1 = on ] ; then
+		patch -p0 --force --forward < reith-proxy.patch
+	else
+		patch -p0 --force --reverse < reith-proxy.patch
+	fi
+	rm -f servers.{orig,rej}
+	popd
+}
+
+firefox_proxy_type() {
+	pushd ~/Library/Application\ Support/Firefox/Profiles/5xdcg2fi.default
+	local N
+
+	N=$1 perl -i -wpe '
+		s/\(("network.proxy.type"), \d+\)/($1, $ENV{N})/;
+	' prefs.js
+
+	popd
+}
+
+set_tsocks() {
+	local LOC=$1
+	pushd /opt/local/etc
+	local CONF=tsocks.conf.null
+	if [ -f "tsocks.conf.$LOC" ] ; then
+		CONF=tsocks.conf.$LOC
+	fi
+	local EXISTING="$( readlink tsocks.conf || : )"
+	if [ "$EXISTING" != "$CONF" ] ; then
+		echo 'Need to sudo to rewrite tsocks config'
+		sudo bash -c "rm -f tsocks.conf ; ln -s $CONF tsocks.conf"
+	fi
+}
+
+LOC="$1"
+
+: ${LOC:=$( ./get-location )}
+
+case "$LOC" in
+	Home)
+		svn_proxy off
+		firefox_proxy_type 4 # auto-detect
+		;;
+	Reith)
+		svn_proxy on
+		firefox_proxy_type 2 # pac
+		;;
+	Roaming)
+		svn_proxy off
+		firefox_proxy_type 1 # manual
+		;;
+	*)
+		echo "$0: unknown location $LOC" >&2
+		exit 1
+		;;
+esac
+
+set_tsocks "$LOC"
+
+exit

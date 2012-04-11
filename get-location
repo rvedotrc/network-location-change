@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -eu
+
+scselect | perl -lne '
+  /^ \* .*\s\((.*)\)$/ and print $1
+'
+
+exit
+
+PLB=/usr/libexec/PlistBuddy
+CONF=/Library/Preferences/SystemConfiguration/preferences.plist
+
+# $PLB -c Print $CONF
+# plutil -convert json -o -  -r preferences.plist  | less
+# plutil -convert xml1 -o -  -r preferences.plist  | less
+
+CURRENTSET=$( $PLB -c 'print CurrentSet' $CONF )
+# e.g. /Sets/24E9424D-9B90-4BAE-BC5C-598B5560C5C2
+CURRENTSET=${CURRENTSET/#\//} # re
+# e.g. Sets/24E9424D-9B90-4BAE-BC5C-598B5560C5C2
+CURRENTSET=${CURRENTSET/\//:}
+# e.g. Sets:24E9424D-9B90-4BAE-BC5C-598B5560C5C2
+
+# $PLB -c "print $CURRENTSET" $CONF
+
+NET_NAME=$( $PLB -c "print $CURRENTSET:UserDefinedName" $CONF )
+echo $NET_NAME
+

@@ -1,11 +1,15 @@
 #!/bin/bash
 
+set -eu
+
+MYDIR="$( dirname "$0" )"
+
 svn_proxy() {
 	pushd ~/.subversion
 	if [ $1 = on ] ; then
-		patch -p0 --force --forward < reith-proxy.patch
+		patch -p0 --force --forward < reith-proxy.patch || :
 	else
-		patch -p0 --force --reverse < reith-proxy.patch
+		patch -p0 --force --reverse < reith-proxy.patch || :
 	fi
 	rm -f servers.{orig,rej}
 	popd
@@ -24,34 +28,51 @@ firefox_proxy_type() {
 
 set_tsocks() {
 	local LOC=$1
-	pushd /opt/local/etc
+	pushd "$MYDIR"
+
 	local CONF=tsocks.conf.null
 	if [ -f "tsocks.conf.$LOC" ] ; then
 		CONF=tsocks.conf.$LOC
 	fi
+
 	local EXISTING="$( readlink tsocks.conf || : )"
 	if [ "$EXISTING" != "$CONF" ] ; then
-		echo 'Need to sudo to rewrite tsocks config'
-		sudo bash -c "rm -f tsocks.conf ; ln -s $CONF tsocks.conf"
+		rm -f tsocks.conf
+		ln -s $CONF tsocks.conf
+	fi
+
+	popd
+}
+
+curl_proxy() {
+	local PROXY=$1
+
+	if [ "$PROXY" = off ] ; then
+		# FIXME should just rewrite...
+		rm -f ~/.curlrc
+	else
+		# FIXME should just rewrite...
+		echo "proxy = $PROXY" > ~/.curlrc
 	fi
 }
 
-LOC="$1"
-
-: ${LOC:=$( ./get-location )}
+LOC="${1:-$( ./get-location )}"
 
 case "$LOC" in
 	Home)
 		svn_proxy off
 		firefox_proxy_type 4 # auto-detect
+		curl_proxy off
 		;;
 	Reith)
 		svn_proxy on
 		firefox_proxy_type 2 # pac
+		curl_proxy http://www-cache.reith.bbc.co.uk:80
 		;;
 	Roaming)
 		svn_proxy off
 		firefox_proxy_type 1 # manual
+		curl_proxy off
 		;;
 	*)
 		echo "$0: unknown location $LOC" >&2
@@ -59,6 +80,18 @@ case "$LOC" in
 		;;
 esac
 
+# TODO
+# export http_proxy=http://www-cache.reith.bbc.co.uk:80
+# export https_proxy=http://www-cache.reith.bbc.co.uk:80
+# export ftp_proxy=http://www-cache.reith.bbc.co.uk:80
+# export any_proxy=http://www-cache.reith.bbc.co.uk:80
+
 set_tsocks "$LOC"
+
+if [ -f "bashrc.$LOC" ] ; then
+	rm -f bashrc ; ln -s bashrc.$LOC bashrc
+else
+	rm -f bashrc ; ln -s bashrc.null bashrc
+fi
 
 exit

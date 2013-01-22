@@ -1,0 +1,2 @@
+export prop_aws_proxy_host=
+export prop_aws_proxy_port=0

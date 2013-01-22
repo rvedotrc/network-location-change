@@ -1,4 +1,11 @@
 export http_proxy=http://www-cache.reith.bbc.co.uk:80
-export https_proxy=$http_proxy
+# export https_proxy=$http_proxy
+
+# Ruby requires https://... not http://...
+export https_proxy=https://www-cache.reith.bbc.co.uk:80
+
 export ftp_proxy=$http_proxy
 export any_proxy=$http_proxy
+
+export prop_aws_proxy_host=www-cache.reith.bbc.co.uk
+export prop_aws_proxy_port=80

@@ -58,20 +58,24 @@ curl_proxy() {
 
 LOC="${1:-$( ./get-location )}"
 
+FF_PROXY_TYPE_MANUAL=1
+FF_PROXY_TYPE_PAC=2
+FF_PROXY_TYPE_AUTO=4
+
 case "$LOC" in
 	Home)
 		svn_proxy off
-		firefox_proxy_type 4 # auto-detect
+		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
 		;;
 	Reith)
 		svn_proxy on
-		firefox_proxy_type 2 # pac
+		firefox_proxy_type $FF_PROXY_TYPE_PAC
 		curl_proxy http://www-cache.reith.bbc.co.uk:80
 		;;
 	Roaming)
 		svn_proxy off
-		firefox_proxy_type 1 # manual
+		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
 		;;
 	*)
@@ -93,5 +97,9 @@ if [ -f "bashrc.$LOC" ] ; then
 else
 	rm -f bashrc ; ln -s bashrc.null bashrc
 fi
+
+# screen provides a tty for sudo, even though sudo doesn't need a password.
+# -d -m means run screen without a tty.
+screen -d -m sudo svc -k $HOME/svscan/socks-proxy
 
 exit

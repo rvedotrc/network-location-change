@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require 'nokogiri'
+
+filename, host, active = ARGV
+str = File.open(filename).read
+doc = Nokogiri::XML str
+
+nodes = doc.xpath "/settings/proxies/proxy[./host='#{host}']"
+nodes.each do |proxy|
+  active_text = proxy.xpath './active/text()'
+  active_text.each do |text_node|
+    text_node.content = active
+  end
+end
+
+out = File.open(filename + ".tmp", "w")
+out.write doc.to_xml
+out.close
+
+File.rename filename + ".tmp", filename
+

@@ -1,2 +1,9 @@
+unset http_proxy
+unset https_proxy
+unset ftp_proxy
+unset any_proxy
+unset no_proxy
+
 export prop_aws_proxy_host=
 export prop_aws_proxy_port=0
+

@@ -6,6 +6,8 @@ export https_proxy=https://www-cache.reith.bbc.co.uk:80
 
 export ftp_proxy=$http_proxy
 export any_proxy=$http_proxy
+export no_proxy=127.0.0.1
 
 export prop_aws_proxy_host=www-cache.reith.bbc.co.uk
 export prop_aws_proxy_port=80
+

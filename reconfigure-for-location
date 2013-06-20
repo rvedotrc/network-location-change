@@ -56,6 +56,27 @@ curl_proxy() {
 	fi
 }
 
+ssh_config() {
+	env TAG="$1" perl -i -e '
+		while (<>) {
+			print;
+			if (/# BEGIN NETWORK $ENV{TAG}\s*$/) {
+				while (<>) {
+					print(), last if /# END NETWORK\s*$/;
+					s/^(\s*)#\s*/$1/;
+					print;
+				}
+			} elsif (/# BEGIN NETWORK\b/) {
+				while (<>) {
+					print(), last if /# END NETWORK\s*$/;
+					s/^(\s*)(?!#)(\S)/$1# $2/;
+					print;
+				}
+			}
+		}
+	' $( realpath ~/.ssh/config )
+}
+
 LOC="${1:-$( ./get-location )}"
 
 FF_PROXY_TYPE_MANUAL=1
@@ -67,28 +88,28 @@ case "$LOC" in
 		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
+		ssh_config NOT-REITH
+		./maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk false
 		;;
 	Reith)
 		svn_proxy on
 		firefox_proxy_type $FF_PROXY_TYPE_PAC
 		curl_proxy http://www-cache.reith.bbc.co.uk:80
+		ssh_config REITH
+		./maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk true
 		;;
 	Roaming)
 		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
+		ssh_config NOT-REITH
+		./maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk false
 		;;
 	*)
 		echo "$0: unknown location $LOC" >&2
 		exit 1
 		;;
 esac
-
-# TODO
-# export http_proxy=http://www-cache.reith.bbc.co.uk:80
-# export https_proxy=http://www-cache.reith.bbc.co.uk:80
-# export ftp_proxy=http://www-cache.reith.bbc.co.uk:80
-# export any_proxy=http://www-cache.reith.bbc.co.uk:80
 
 set_tsocks "$LOC"
 
@@ -100,6 +121,7 @@ fi
 
 # screen provides a tty for sudo, even though sudo doesn't need a password.
 # -d -m means run screen without a tty.
-screen -d -m sudo svc -k $HOME/svscan/socks-proxy
+# screen -d -m sudo svc -k $HOME/svscan/socks-proxy
+sudo svc -k $HOME/svscan/socks-proxy
 
 exit

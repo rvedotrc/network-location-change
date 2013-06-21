@@ -1,8 +1,14 @@
 #!/bin/bash
 
-set -eu
+# exec >> /tmp/t.log 2>&1
+# set -x
 
+set -eu
 MYDIR="$( dirname "$0" )"
+printenv > "$MYDIR"/last-env
+
+# For realpath
+export PATH=/Users/rachel/git/thomas.rudolf.org.uk/misc-scripts/bin:$PATH
 
 svn_proxy() {
 	pushd ~/.subversion
@@ -83,27 +89,30 @@ FF_PROXY_TYPE_MANUAL=1
 FF_PROXY_TYPE_PAC=2
 FF_PROXY_TYPE_AUTO=4
 
+# f# or maven-set-proxy-active
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
 case "$LOC" in
 	Home)
 		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
 		ssh_config NOT-REITH
-		./maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk false
+		"$MYDIR"/maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk false
 		;;
 	Reith)
 		svn_proxy on
 		firefox_proxy_type $FF_PROXY_TYPE_PAC
 		curl_proxy http://www-cache.reith.bbc.co.uk:80
 		ssh_config REITH
-		./maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk true
+		"$MYDIR"/maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk true
 		;;
 	Roaming)
 		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
 		ssh_config NOT-REITH
-		./maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk false
+		"$MYDIR"/maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk false
 		;;
 	*)
 		echo "$0: unknown location $LOC" >&2
@@ -121,7 +130,7 @@ fi
 
 # screen provides a tty for sudo, even though sudo doesn't need a password.
 # -d -m means run screen without a tty.
-# screen -d -m sudo svc -k $HOME/svscan/socks-proxy
-sudo svc -k $HOME/svscan/socks-proxy
+screen -d -m sudo svc -k $HOME/svscan/socks-proxy
+# sudo svc -k $HOME/svscan/socks-proxy
 
 exit

@@ -6,4 +6,5 @@ unset no_proxy
 
 export prop_aws_proxy_host=
 export prop_aws_proxy_port=0
+export NO_REITH_PROXY=1
 

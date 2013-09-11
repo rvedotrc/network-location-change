@@ -12,6 +12,14 @@ printenv > ./last-env
 # For realpath
 export PATH=/Users/rachel/git/thomas.rudolf.org.uk/misc-scripts/bin:$PATH
 
+svc() {
+	# Apparently "!requiretty" isn't enough for sudo.
+	# "sudo: no tty present and no askpass program specified"
+	# Hence: provide a tty using "screen".
+	# -d -m   Start  screen  in  "detached" mode. This creates a new session but doesn't attach to it
+	screen -d -m sudo svc "$@"
+}
+
 svn_proxy() {
 	if [ $1 = on ] ; then
 		perl -i -pe 's/^#\s*(?=http-proxy)//' ~/.subversion/servers
@@ -96,6 +104,7 @@ case "$LOC" in
 		curl_proxy off
 		ssh_config NOT-REITH
 		maven_reith_cache false
+		svc -d $HOME/svscan/openvpn-brunel
 		;;
 	Reith)
 		svn_proxy on
@@ -103,6 +112,7 @@ case "$LOC" in
 		curl_proxy http://www-cache.reith.bbc.co.uk:80
 		ssh_config REITH
 		maven_reith_cache true
+		svc -u $HOME/svscan/openvpn-brunel
 		;;
 	Roaming)
 		svn_proxy off
@@ -110,6 +120,7 @@ case "$LOC" in
 		curl_proxy off
 		ssh_config NOT-REITH
 		maven_reith_cache false
+		svc -d $HOME/svscan/openvpn-brunel
 		;;
 	*)
 		echo "$0: unknown location $LOC" >&2
@@ -125,11 +136,7 @@ else
 	rm -f bashrc ; ln -s bashrc.null bashrc
 fi
 
-# Apparently "!requiretty" isn't enough for sudo.
-# "sudo: no tty present and no askpass program specified"
-# Hence: provide a tty using "screen".
-# -d -m   Start  screen  in  "detached" mode. This creates a new session but doesn't attach to it
-screen -d -m sudo svc -k $HOME/svscan/socks-proxy
-screen -d -m sudo svc -k $HOME/svscan/forge-irc
+svc -k $HOME/svscan/socks-proxy
+svc -k $HOME/svscan/forge-irc
 
 exit

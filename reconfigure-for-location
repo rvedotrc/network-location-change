@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# exec >> /tmp/t.log 2>&1
-# set -x
+exec >> /tmp/t.log 2>&1
+set -x
+
+exec > >(
+	exec /usr/local/bin/multilog t /Users/rachel/git/thomas.rudolf.org.uk/network-location-change/log/main
+) 2>&1
 
 set -eu
 MYDIR="$( dirname "$0" )"
@@ -13,11 +17,12 @@ printenv > ./last-env
 export PATH=/Users/rachel/git/thomas.rudolf.org.uk/misc-scripts/bin:$PATH
 
 svc() {
+	sudo /usr/local/bin/svc "$@"
 	# Apparently "!requiretty" isn't enough for sudo.
 	# "sudo: no tty present and no askpass program specified"
 	# Hence: provide a tty using "screen".
 	# -d -m   Start  screen  in  "detached" mode. This creates a new session but doesn't attach to it
-	screen -d -m sudo svc "$@"
+	# screen -d -m sudo svc "$@"
 }
 
 svn_proxy() {
@@ -112,7 +117,7 @@ case "$LOC" in
 		curl_proxy http://www-cache.reith.bbc.co.uk:80
 		ssh_config REITH
 		maven_reith_cache true
-		svc -u $HOME/svscan/openvpn-brunel
+		svc -tu $HOME/svscan/openvpn-brunel
 		;;
 	Roaming)
 		svn_proxy off
@@ -138,5 +143,8 @@ fi
 
 svc -k $HOME/svscan/socks-proxy
 svc -k $HOME/svscan/forge-irc
+
+sleep 1
+sudo /usr/local/bin/svstat /Users/rachel/svscan/*
 
 exit

@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+# vi: set ts=4 sw=4 :
+
+use warnings;
+use strict;
+
+sub matches {
+	my ($needle, $list) = @_;
+	return if !@$list;
+
+	my $neg;
+	for my $entry (@$list) {
+		($neg, my $arg) = $entry =~ /^(!)?(.*)$/;
+		if ($arg eq $needle) {
+			return !$neg;
+		}
+	}
+
+	return $neg;
+}
+
+my $loc = $ENV{LOC};
+
+while (<>) {
+	print;
+	if (/# BEGIN LOCATION(?:\s+(.*))$/) {
+		my @parts = split /\s*,\s*/, (defined($1) ? $1 : "");
+		my $matches = matches($loc, \@parts);
+
+		#printf STDERR "Determined that $loc matches $_\n" if $matches;
+		#printf STDERR "Determined that $loc doesn't match $_\n" if !$matches;
+
+		while (<>) {
+			print(), last if /# END LOCATION\s*$/;
+			if ($matches) {
+				s/^(\s*)#\s*/$1/;
+			} else {
+				s/^(\s*)(?!#)(\S)/$1# $2/;
+			}
+			print;
+		}
+	}
+}

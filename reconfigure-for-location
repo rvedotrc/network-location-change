@@ -72,24 +72,7 @@ curl_proxy() {
 }
 
 ssh_config() {
-	env TAG="$1" perl -i -e '
-		while (<>) {
-			print;
-			if (/# BEGIN NETWORK $ENV{TAG}\s*$/) {
-				while (<>) {
-					print(), last if /# END NETWORK\s*$/;
-					s/^(\s*)#\s*/$1/;
-					print;
-				}
-			} elsif (/# BEGIN NETWORK\b/) {
-				while (<>) {
-					print(), last if /# END NETWORK\s*$/;
-					s/^(\s*)(?!#)(\S)/$1# $2/;
-					print;
-				}
-			}
-		}
-	' $( realpath ~/.ssh/config )
+	env LOC="$1" perl ./switch-comment-blocks "$( realpath ~/.ssh/config )"
 }
 
 maven_reith_cache() {
@@ -107,7 +90,7 @@ case "$LOC" in
 		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
-		ssh_config NOT-REITH
+		ssh_config "$LOC"
 		maven_reith_cache false
 		svc -d $HOME/svscan/openvpn-brunel
 		;;
@@ -115,7 +98,7 @@ case "$LOC" in
 		svn_proxy on
 		firefox_proxy_type $FF_PROXY_TYPE_PAC
 		curl_proxy http://www-cache.reith.bbc.co.uk:80
-		ssh_config REITH
+		ssh_config "$LOC"
 		maven_reith_cache true
 		svc -tu $HOME/svscan/openvpn-brunel
 		;;
@@ -123,7 +106,7 @@ case "$LOC" in
 		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
 		curl_proxy off
-		ssh_config NOT-REITH
+		ssh_config "$LOC"
 		maven_reith_cache false
 		svc -d $HOME/svscan/openvpn-brunel
 		;;

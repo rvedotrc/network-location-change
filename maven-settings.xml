@@ -2,14 +2,14 @@
 <settings>
     <proxies>
         <proxy>
-            <active>true</active>
+            <active>false</active>
             <protocol>http</protocol>
             <host>www-cache.reith.bbc.co.uk</host>
             <port>80</port>
             <nonProxyHosts>cmcdev2006.national.core.bbc.co.uk,cmcdev2014.national.core.bbc.co.uk,*.national.core.bbc.co.uk,*.*.bbc.co.uk</nonProxyHosts>
         </proxy>
         <proxy>
-            <active>true</active>
+            <active>false</active>
             <protocol>https</protocol>
             <host>www-cache.reith.bbc.co.uk</host>
             <port>80</port>
@@ -46,7 +46,7 @@
                     </releases>
                     <snapshots>
                         <enabled>false</enabled>
-                        <updatePolicy>always</updatePolicy>
+                        <updatePolicy>never</updatePolicy> <!-- was: always -->
                     </snapshots>
                 </repository>
             </repositories>
@@ -58,8 +58,8 @@
                         <enabled>true</enabled>
                     </releases>
                     <snapshots>
-                        <enabled>true</enabled>
-                        <updatePolicy>always</updatePolicy>
+                        <enabled>false</enabled> <!-- was: true -->
+                        <updatePolicy>never</updatePolicy> <!-- was: always -->
                     </snapshots>
                 </pluginRepository>
             </pluginRepositories>

@@ -72,7 +72,7 @@ curl_proxy() {
 }
 
 ssh_config() {
-	env LOC="$1" perl ./switch-comment-blocks "$( realpath ~/.ssh/config )"
+	env LOC="$1" perl -i ./switch-comment-blocks "$( realpath ~/.ssh/config )"
 }
 
 maven_reith_cache() {

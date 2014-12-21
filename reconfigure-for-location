@@ -14,7 +14,7 @@ cd "$MYDIR"
 printenv > ./last-env
 
 # For realpath
-export PATH=/Users/rachel/git/thomas.rudolf.org.uk/misc-scripts/bin:$PATH
+export PATH=/Users/rachel/git/github.com/rvedotrc/misc-scripts/bin:$PATH
 
 svc() {
 	sudo /usr/local/bin/svc "$@"
@@ -23,14 +23,6 @@ svc() {
 	# Hence: provide a tty using "screen".
 	# -d -m   Start  screen  in  "detached" mode. This creates a new session but doesn't attach to it
 	# screen -d -m sudo svc "$@"
-}
-
-svn_proxy() {
-	if [ $1 = on ] ; then
-		perl -i -pe 's/^#\s*(?=http-proxy)//' ~/.subversion/servers
-	else
-		perl -i -pe 's/^(?=http-proxy)/# /' ~/.subversion/servers
-	fi
 }
 
 firefox_proxy_type() {
@@ -59,20 +51,12 @@ set_tsocks() {
 	fi
 }
 
-curl_proxy() {
-	local PROXY=$1
-
-	if [ "$PROXY" = off ] ; then
-		# FIXME should just rewrite...
-		rm -f ~/.curlrc
-	else
-		# FIXME should just rewrite...
-		echo "proxy = $PROXY" > ~/.curlrc
-	fi
-}
-
-ssh_config() {
-	env LOC="$1" perl -i ./switch-comment-blocks "$( realpath ~/.ssh/config )"
+switch_comment_blocks() {
+	env LOC="$1" perl -i ./switch-comment-blocks \
+		"$( realpath ~/.curlrc )" \
+		"$( realpath ~/.ssh/config )" \
+		"$( realpath ~/.subversion/servers )" \
+		;
 }
 
 maven_reith_cache() {
@@ -87,26 +71,20 @@ FF_PROXY_TYPE_AUTO=4
 
 case "$LOC" in
 	Home)
-		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
-		curl_proxy off
-		ssh_config "$LOC"
+		switch_comment_blocks "$LOC"
 		maven_reith_cache false
 		svc -d $HOME/svscan/openvpn-brunel
 		;;
 	Reith)
-		svn_proxy on
 		firefox_proxy_type $FF_PROXY_TYPE_PAC
-		curl_proxy http://www-cache.reith.bbc.co.uk:80
-		ssh_config "$LOC"
+		switch_comment_blocks "$LOC"
 		maven_reith_cache true
 		svc -tu $HOME/svscan/openvpn-brunel
 		;;
 	Roaming)
-		svn_proxy off
 		firefox_proxy_type $FF_PROXY_TYPE_AUTO
-		curl_proxy off
-		ssh_config "$LOC"
+		switch_comment_blocks "$LOC"
 		maven_reith_cache false
 		svc -d $HOME/svscan/openvpn-brunel
 		;;

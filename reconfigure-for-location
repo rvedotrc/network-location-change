@@ -18,11 +18,6 @@ export PATH=/Users/rachel/git/github.com/rvedotrc/misc-scripts/bin:$PATH
 
 svc() {
 	sudo /usr/local/bin/svc "$@"
-	# Apparently "!requiretty" isn't enough for sudo.
-	# "sudo: no tty present and no askpass program specified"
-	# Hence: provide a tty using "screen".
-	# -d -m   Start  screen  in  "detached" mode. This creates a new session but doesn't attach to it
-	# screen -d -m sudo svc "$@"
 }
 
 firefox_proxy_type() {
@@ -32,6 +27,9 @@ firefox_proxy_type() {
 	N=$1 perl -i -wpe '
 		s/\(("network.proxy.type"), \d+\)/($1, $ENV{N})/;
 	' prefs.js
+	# Alas so far I haven't found a way to persuade Firefox to reload the
+	# config via an external trigger, so all this does is means that /if/
+	# Firefox restarts, it'll start with the correct config.
 
 	popd >/dev/null
 }

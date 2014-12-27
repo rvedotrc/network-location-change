@@ -5,6 +5,7 @@ export http_proxy=http://www-cache.reith.bbc.co.uk:80
 # e.g. aws-cli (try sqs-list-queues)
 export https_proxy=https://www-cache.reith.bbc.co.uk:80
 # TODO document what seems to require http://
+# - brew
 
 export ftp_proxy=$http_proxy
 export any_proxy=$http_proxy

@@ -1,0 +1,26 @@
+Overview
+========
+
+For seamlessly (as far as possible) switching between different network
+locations.
+
+ - Home
+ - Reith
+ - everywhere else
+
+Switches proxy settings, and so forth.
+
+Usage
+=====
+
+I use ControlPlane ( http://www.controlplaneapp.com/about/ ) to work out when
+to switch.  ControlPlane is then configured to run the
+./reconfigure-for-location script.
+
+Prerequisites
+=============
+
+daemontools, for logging.
+ruby, for XML mangling.
+bash & perl, for general admin.
+

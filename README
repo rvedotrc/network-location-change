@@ -24,3 +24,17 @@ daemontools, for logging.
 ruby, for XML mangling.
 bash & perl, for general admin.
 
+Hooking it all up
+=================
+
+ControlPlane runs the script (actually a wrapper script in ~/bin which adds
+more logging - probably unnecessary).
+
+~/.bashrc includes the line:
+  . $HOME/git/github.com/rvedotrc/network-location-change/bashrc
+
+~/.m2/settings.xml is a symlink:
+  lrwxr-xr-x  1 rachel  staff  80 28 Dec 09:47 /Users/rachel/.m2/settings.xml -> /Users/rachel/git/github.com/rvedotrc/network-location-change/maven-settings.xml
+
+tsocks.conf??? I don't really use that any more.
+

@@ -4,7 +4,7 @@ exec >> /tmp/t.log 2>&1
 set -x
 
 exec > >(
-	exec /usr/local/bin/multilog t /Users/rachel/git/thomas.rudolf.org.uk/network-location-change/log/main
+	exec /usr/local/bin/multilog t /Users/rachel/git/github.com/rvedotrc/network-location-change/log/main
 ) 2>&1
 
 set -eu
@@ -73,11 +73,13 @@ case "$LOC" in
 		switch_comment_blocks "$LOC"
 		maven_reith_cache false
 		svc -d $HOME/svscan/openvpn-brunel
+		svc -d $HOME/svscan/openvpn-home
 		;;
 	Reith)
 		firefox_proxy_type $FF_PROXY_TYPE_PAC
 		switch_comment_blocks "$LOC"
 		maven_reith_cache true
+		svc -d $HOME/svscan/openvpn-home
 		svc -tu $HOME/svscan/openvpn-brunel
 		;;
 	Roaming)
@@ -85,6 +87,7 @@ case "$LOC" in
 		switch_comment_blocks "$LOC"
 		maven_reith_cache false
 		svc -d $HOME/svscan/openvpn-brunel
+		svc -tu $HOME/svscan/openvpn-home
 		;;
 	*)
 		echo "$0: unknown location $LOC" >&2
@@ -100,8 +103,9 @@ else
 	rm -f bashrc ; ln -s bashrc.null bashrc
 fi
 
-svc -k $HOME/svscan/socks-proxy
-svc -k $HOME/svscan/forge-irc
+# No longer ever used.  Replaced by openvpn-brunel.
+# svc -k $HOME/svscan/socks-proxy
+# svc -k $HOME/svscan/forge-irc
 
 sleep 1
 sudo /usr/local/bin/svstat /Users/rachel/svscan/*

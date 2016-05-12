@@ -1,11 +1,10 @@
 export http_proxy=http://www-cache.reith.bbc.co.uk:80
 # export https_proxy=$http_proxy
 
-# Ruby requires https://... not http://...
-# e.g. aws-cli (try sqs-list-queues)
-export https_proxy=https://www-cache.reith.bbc.co.uk:80
-# TODO document what seems to require http://
-# - brew
+# Ruby (what lib?) allegedly requires https://... not http://...
+# aws-sdk-js requires http://
+# http:// feels more correct - we don't talk https to the proxy.
+export https_proxy=http://www-cache.reith.bbc.co.uk:80
 
 export ftp_proxy=$http_proxy
 export any_proxy=$http_proxy

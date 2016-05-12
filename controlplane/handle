@@ -1,0 +1,36 @@
+#!/bin/bash
+
+exec >> /tmp/controlplane-enter.log 2>&1
+action="$1"
+echo "$( date ) controlplane action=$action"
+
+set -eu
+
+cd "$( dirname $0 )"
+
+export PATH=$PATH:$HOME/git/github.com/rvedotrc/misc-scripts/bin
+
+case "$action" in
+	enter-home)
+		scselect Home
+		../shinypig
+		;;
+	enter-dongle|enter-bbc-staff-ssid)
+		scselect Roaming
+		../shinypig
+		;;
+	enter-reith)
+		scselect Reith
+		../shinypig
+		;;
+	*)
+		echo No action to apply for "$action"
+		;;
+esac
+
+# date
+# /usr/bin/id
+# /bin/pwd
+# /usr/bin/printenv 
+# echo
+# 

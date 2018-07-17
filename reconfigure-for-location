@@ -1,52 +1,30 @@
 #!/bin/bash
 
-exec >> /tmp/t.log 2>&1
-set -x
+set -eux
 
-exec > >(
-	exec /usr/local/bin/multilog t /Users/rachel/git/github.com/rvedotrc/network-location-change/log/main
-) 2>&1
+if [ ! -t 1 ] ; then
+	# Real ControlPlane
+	exec >> /tmp/controlplane-enter.log 2>&1
+	cd "$( dirname $0 )"
+else
+	# Emulate ControlPlane
+	PATH=/usr/bin:/bin:/usr/sbin:/sbin
+fi
 
-set -eu
-MYDIR="$( dirname "$0" )"
-cd "$MYDIR"
 
-printenv > ./last-env
 
-# For realpath
-export PATH=/Users/rachel/git/github.com/rvedotrc/misc-scripts/bin:$PATH
+current_network_location() {
+	scselect | perl -lne '
+	  /^ \* .*\s\((.*)\)$/ and print $1
+	'
+}
+
+current_controlplane_context() {
+	osascript -e 'tell application "ControlPlane" to get current context'
+}
 
 svc() {
 	sudo /usr/local/bin/svc "$@"
-}
-
-firefox_proxy_type() {
-	pushd ~/Library/Application\ Support/Firefox/Profiles/5xdcg2fi.default >/dev/null
-	local N
-
-	N=$1 perl -i -wpe '
-		s/\(("network.proxy.type"), \d+\)/($1, $ENV{N})/;
-	' prefs.js
-	# Alas so far I haven't found a way to persuade Firefox to reload the
-	# config via an external trigger, so all this does is means that /if/
-	# Firefox restarts, it'll start with the correct config.
-
-	popd >/dev/null
-}
-
-set_tsocks() {
-	local LOC=$1
-
-	local CONF=tsocks.conf.null
-	if [ -f "tsocks.conf.$LOC" ] ; then
-		CONF=tsocks.conf.$LOC
-	fi
-
-	local EXISTING="$( readlink tsocks.conf || : )"
-	if [ "$EXISTING" != "$CONF" ] ; then
-		rm -f tsocks.conf
-		ln -s $CONF tsocks.conf
-	fi
 }
 
 switch_comment_blocks() {
@@ -57,57 +35,33 @@ switch_comment_blocks() {
 		;
 }
 
-maven_reith_cache() {
-	./with-rvm ./maven-set-proxy-active ./maven-settings.xml www-cache.reith.bbc.co.uk "$1"
-}
 
-LOC="${1:-$( ./get-location )}"
 
-FF_PROXY_TYPE_MANUAL=1
-FF_PROXY_TYPE_PAC=2
-FF_PROXY_TYPE_AUTO=4
+current_context="${1:-$( current_controlplane_context )}"
+echo "$( date ) controlplane current_context=$current_context"
 
-case "$LOC" in
-	Home)
-		firefox_proxy_type $FF_PROXY_TYPE_AUTO
-		switch_comment_blocks "$LOC"
-		maven_reith_cache false
-		svc -d $HOME/svscan/openvpn-brunel
-		svc -d $HOME/svscan/openvpn-home
+# For "realpath"
+export PATH=$PATH:$HOME/git/github.com/rvedotrc/misc-scripts/bin
+
+case "$current_context" in
+	"Min lejlighed")
+		scselect "$current_context"
+		switch_comment_blocks Home
+		svc -d $HOME/services/openvpn-tinytoucan
+		rm -f bashrc ; ln -s bashrc.null bashrc
 		;;
-	Reith)
-		firefox_proxy_type $FF_PROXY_TYPE_PAC
-		switch_comment_blocks "$LOC"
-		maven_reith_cache true
-		svc -d $HOME/svscan/openvpn-home
-		svc -tu $HOME/svscan/openvpn-brunel
-		;;
-	Roaming)
-		firefox_proxy_type $FF_PROXY_TYPE_AUTO
-		switch_comment_blocks "$LOC"
-		maven_reith_cache false
-		svc -d $HOME/svscan/openvpn-brunel
-		svc -tu $HOME/svscan/openvpn-home
+	"Reith netværk")
+		scselect "$current_context"
+		switch_comment_blocks Reith
+		svc -tu $HOME/services/openvpn-tinytoucan
+		rm -f bashrc ; ln -s bashrc.Reith bashrc
 		;;
 	*)
-		echo "$0: unknown location $LOC" >&2
-		exit 1
+		scselect "Andet netværk"
+		switch_comment_blocks Andet
+		svc -d $HOME/services/openvpn-tinytoucan
+		rm -f bashrc ; ln -s bashrc.null bashrc
 		;;
 esac
 
-set_tsocks "$LOC"
-
-if [ -f "bashrc.$LOC" ] ; then
-	rm -f bashrc ; ln -s bashrc.$LOC bashrc
-else
-	rm -f bashrc ; ln -s bashrc.null bashrc
-fi
-
-# No longer ever used.  Replaced by openvpn-brunel.
-# svc -k $HOME/svscan/socks-proxy
-# svc -k $HOME/svscan/forge-irc
-
-sleep 1
-sudo /usr/local/bin/svstat /Users/rachel/svscan/*
-
-exit
+# eof

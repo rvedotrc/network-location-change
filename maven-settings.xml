@@ -2,14 +2,14 @@
 <settings>
     <proxies>
         <proxy>
-            <active>false</active>
+            <active>true</active>
             <protocol>http</protocol>
             <host>www-cache.reith.bbc.co.uk</host>
             <port>80</port>
             <nonProxyHosts>cmcdev2006.national.core.bbc.co.uk,cmcdev2014.national.core.bbc.co.uk,*.national.core.bbc.co.uk,*.*.bbc.co.uk</nonProxyHosts>
         </proxy>
         <proxy>
-            <active>false</active>
+            <active>true</active>
             <protocol>https</protocol>
             <host>www-cache.reith.bbc.co.uk</host>
             <port>80</port>

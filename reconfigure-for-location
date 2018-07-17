@@ -45,19 +45,22 @@ export PATH=$PATH:$HOME/git/github.com/rvedotrc/misc-scripts/bin
 
 case "$current_context" in
 	"Min lejlighed")
-		scselect "$current_context"
+		# scselect can't seem to handle non-ascii
+		scselect "Hjemme"
 		switch_comment_blocks Home
 		svc -d $HOME/services/openvpn-tinytoucan
 		rm -f bashrc ; ln -s bashrc.null bashrc
 		;;
 	"Reith netværk")
-		scselect "$current_context"
+		# scselect can't seem to handle non-ascii
+		scselect "Reith"
 		switch_comment_blocks Reith
 		svc -tu $HOME/services/openvpn-tinytoucan
 		rm -f bashrc ; ln -s bashrc.Reith bashrc
 		;;
 	*)
-		scselect "Andet netværk"
+		# scselect can't seem to handle non-ascii
+		scselect "Andet"
 		switch_comment_blocks Andet
 		svc -d $HOME/services/openvpn-tinytoucan
 		rm -f bashrc ; ln -s bashrc.null bashrc

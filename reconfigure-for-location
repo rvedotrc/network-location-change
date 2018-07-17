@@ -44,14 +44,14 @@ echo "$( date ) controlplane current_context=$current_context"
 export PATH=$PATH:$HOME/git/github.com/rvedotrc/misc-scripts/bin
 
 case "$current_context" in
-	"Min lejlighed")
+	"Hjemme")
 		# scselect can't seem to handle non-ascii
 		scselect "Hjemme"
-		switch_comment_blocks Home
+		switch_comment_blocks Hjemme
 		svc -d $HOME/services/openvpn-tinytoucan
 		rm -f bashrc ; ln -s bashrc.null bashrc
 		;;
-	"Reith netværk")
+	"Reith")
 		# scselect can't seem to handle non-ascii
 		scselect "Reith"
 		switch_comment_blocks Reith
